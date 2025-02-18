@@ -1,4 +1,5 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 
 declare type SearchParamProps = {
     params: { [key: string]: string };
