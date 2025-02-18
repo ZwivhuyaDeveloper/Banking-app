@@ -77,7 +77,12 @@ export function formatAmount(amount: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
+export const parseStringify = (value: any) => {
+  if (value === undefined) {
+    throw new Error('Cannot parse undefined value');
+  }
+  return JSON.parse(JSON.stringify(value));
+}
 
 export const removeSpecialCharacters = (value: string) => {
   return value.replace(/[^\w\s]/gi, "");

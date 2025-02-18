@@ -24,11 +24,16 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
       DATABASE_ID!,
       USER_COLLECTION_ID!,
       [Query.equal('userId', [userId])]
-    )
+    );
+
+    if (user.documents.length === 0) {
+      return null;
+    }
 
     return parseStringify(user.documents[0]);
   } catch (error) {
-    console.log(error)
+    console.log('Error fetching user info:', error);
+    return null;
   }
 }
 
@@ -37,18 +42,24 @@ export const signIn = async ({ email, password }: signInProps) => {
     const { account } = await createAdminClient();
     const session = await account.createEmailPasswordSession(email, password);
 
-    cookies().set("appwrite-session", session.secret, {
+    const cookieStore = await cookies();
+    await cookieStore.set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
       sameSite: "strict",
       secure: true,
     });
 
-    const user = await getUserInfo({ userId: session.userId }) 
+    const user = await getUserInfo({ userId: session.userId });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
 
     return parseStringify(user);
   } catch (error) {
-    console.error('Error', error);
+    console.error('Error during sign-in:', error.message);
+    throw new Error('Sign-in failed. Please check your credentials and try again.');
   }
 }
 
